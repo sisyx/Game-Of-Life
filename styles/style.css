@@ -1,0 +1,42 @@
+.settings-input {
+	width: 40px;
+	aspect-ratio: 16/9;
+	background: rgb(30, 30, 30);
+	color: rgb(233, 233, 233);
+	border: none;
+	padding: 2px 5px;
+	font-size: 1.5rem;
+	border-radius: 5px;
+}
+.settings-btn {
+	border-radius: 5px;
+/*	width: 40px;*/
+/*	aspect-ratio: 16/9;*/
+	background: rgb(30, 30, 30);
+	color: rgb(233, 233, 233);
+	border: none;
+	padding: 2px 5px;
+	font-size: 1.2rem;
+}
+.settings-btn:hover, .settings-input:hover {
+	background: rgb(10, 10, 10);
+	color: white;
+}
+.input-title {
+	display: inline-block;
+	font-family: sans-serif;
+	font-weight: bold;
+	color: rgb(30, 30, 30);
+}
+div.cell-container {
+	display: grid;
+}
+.cell {
+	border: rgb(30, 30, 30) 1px solid;
+}
+.alive {
+	background: rgb(5, 5, 5);
+}
+.dead {
+	background: rgb(250, 250, 250);
+}
