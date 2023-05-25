@@ -1,9 +1,11 @@
 const body = document.querySelector('body');
+const settings = document.querySelector('.settings');
 const widthInput = document.querySelector('input.width-input');
 const اheightInput = document.querySelector('input.height-input');
 const submitBtn = document.querySelector('button.submit-btn');
 const moveBtn = document.querySelector('button.move-btn');
 const cellContainer = document.querySelector('div.cell-container');
+const autoMoveCheckBox = document.querySelector('input[type="checkbox"]');
 var width = 0;
 var height = 0;
 var allCellsList = [];
@@ -17,6 +19,30 @@ var gameNotStarted = true;
 var isCellCreated = false;
 
 
+autoMoveCheckBox.addEventListener('click', event => {
+	let intervalID = 'hello';
+	if (width * height < 250 ) {
+		intervalID = setInterval(function () {
+			if (autoMoveCheckBox.checked) {
+				move();
+			} else {
+				clearInterval(intervalID);
+				console.log('didint Stop');
+			}
+		}, 100);
+	} else {
+		intervalID = setInterval(function () {
+			if (autoMoveCheckBox.checked) {
+				move();
+			} else {
+				clearInterval(intervalID);
+				console.log('didint Stop');
+			}
+		}, 5000);
+	}
+})
+
+
 submitBtn.addEventListener('click', event =>{ 
 	ruinCells();
 	createCells(widthInput.value, اheightInput.value);
@@ -28,12 +54,14 @@ moveBtn.addEventListener('click', move);
 
 // functions
 
+
 function createCells(thisWidth, thisHeight) {
-	cellContainer.style.gridTemplateRows = `repeat(${thisWidth}, 50px)`;
-	cellContainer.style.gridTemplateColumns = `repeat(${thisHeight}, 50px)`;
-	for (let i = 0; i < thisWidth; i++) {
+	cellContainer.style.width = window.innerWidth - window.innerWidth / 20 + 'px';
+	cellContainer.style.gridTemplateRows = `repeat(${thisHeight}, 1fr)`;
+	cellContainer.style.gridTemplateColumns = `repeat(${thisWidth}, auto)`;
+	for (let i = 0; i < thisHeight; i++) {
 		allCellsList.push([]);
-		for (let j = 0; j < thisHeight; j++) {
+		for (let j = 0; j < thisWidth; j++) {
 			const thisCell = document.createElement('div');
 			thisCell.classList.add('cell');
 			thisCell.classList.add('dead');
@@ -48,12 +76,14 @@ function createCells(thisWidth, thisHeight) {
 	height = thisHeight;
 }
 
+
 function ruinCells() {
 	for (let i = document.querySelectorAll('.cell').length - 1; i >= 0; i--) {
 		document.querySelectorAll('.cell')[i].remove();
 		allCellsList.splice(0,allCellsList.length)
 	}
 }
+
 
 function cellClick(event) {
 	if (gameNotStarted) {
@@ -66,6 +96,7 @@ function cellClick(event) {
 		}
 	}
 }
+
 
 function move() {
 	aliveCellsList = [];
@@ -103,6 +134,7 @@ function move() {
 	console.log('moved');
 }
 
+
 function getSelectedRow(cellNumber) {
 	for (let i = 1; i <= height; i++) {
 		if (document.querySelectorAll('.cell')[cellNumber].classList.contains(`r-${i}`)) {
@@ -110,6 +142,7 @@ function getSelectedRow(cellNumber) {
 		}
 	}
 }
+
 
 function getSelectedColumn(cellNumber) {
 	for (let i = 1; i <= width; i++) {
@@ -119,10 +152,14 @@ function getSelectedColumn(cellNumber) {
 	}
 }
 
+
 function getAlivesArround(thisRow, thisColumn) {
+	// create variables
 	let numberOfAlivesArround = 0;
 	const theRow = thisRow - 1;
 	const theCol = thisColumn - 1;
+
+	// check 8 conditions implicitly
 	// r+ c
 	try {
 		if (allCellsList[theRow + 1][theCol].classList.contains('alive')) {
