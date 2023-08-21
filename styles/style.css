@@ -17,7 +17,7 @@ body {
 }
 .settings * {
 /*	max-width: 100%;*/
-	font-size: 3vw;
+	font-size: 1.5rem;
 }
 .settings label {
 	display: flex;
@@ -25,13 +25,13 @@ body {
 	justify-content: center;
 }
 .settings-input {
-	width: 10vw;
+	width: 50px;
 	aspect-ratio: 16/9;
 	background: rgb(30, 30, 30);
 	color: rgb(233, 233, 233);
 	border: none;
 	padding: 2px 5px;
-	font-size: 3vw;
+	font-size: 1.5rem;
 	border-radius: 5px;
 	text-align: center;
 }
@@ -43,7 +43,7 @@ body {
 	color: rgb(233, 233, 233);
 	border: rgb(233, 233, 233) 1px solid;
 	padding: 2px 5px;
-	font-size: 3vw;
+	font-size: 1.5rem;
 }
 .settings-btn:hover, .settings-input:hover {
 	background: rgb(10, 10, 10);
@@ -59,7 +59,8 @@ div.cell-container {
 	display: grid;
 }
 .cell {
-	border: rgb(30, 30, 30) 1px solid;
+	border-bottom: rgb(30, 30, 30) 1px solid;
+	/* box-shadow: 0 0 1px black; */
 	font-size: 3rem;
 	text-align: center;
 	cursor: default;
@@ -67,7 +68,13 @@ div.cell-container {
 	font-weight: bold;
 	aspect-ratio: 1/1;
 }
-.alive {
+.cell:nth-child(odd) {
+	background-color: rgb(230,230,230);
+}
+.cell:nth-child(even) {
+	background-color: rgb(200,200,200);
+}
+.cell.alive {
 	background: rgb(30, 30, 30);
 }
 .dead {

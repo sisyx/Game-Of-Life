@@ -13,12 +13,14 @@ var aliveCellsList = [];
 var aliveCellsNumbersList = [];
 var deadCellsList = [];
 var deadCellsNumbersList = [];
-var kosSher = 0;
-// bolleans
+var numMinorErrors = 0;
+// boolleans
 var gameNotStarted = true;
 var isCellCreated = false;
 
 
+
+// handle automove type
 autoMoveCheckBox.addEventListener('click', event => {
 	let intervalID = 'hello';
 	if (width * height < 250 ) {
@@ -43,6 +45,7 @@ autoMoveCheckBox.addEventListener('click', event => {
 })
 
 
+// handle sumbit
 submitBtn.addEventListener('click', event =>{ 
 	ruinCells();
 	createCells(widthInput.value, اheightInput.value);
@@ -56,9 +59,13 @@ moveBtn.addEventListener('click', move);
 
 
 function createCells(thisWidth, thisHeight) {
+	// console.log(!!(thisHeight * thisHeight % 2));
+	if (!((thisHeight * thisWidth) % 2)) {
+		++thisWidth;
+	} 
 	cellContainer.style.width = window.innerWidth - window.innerWidth / 20 + 'px';
-	cellContainer.style.gridTemplateRows = `repeat(${thisHeight}, 1fr)`;
-	cellContainer.style.gridTemplateColumns = `repeat(${thisWidth}, auto)`;
+	cellContainer.style.gridTemplateRows = `repeat(${thisHeight}, 50px)`;
+	cellContainer.style.gridTemplateColumns = `repeat(${thisWidth}, 50px)`;
 	for (let i = 0; i < thisHeight; i++) {
 		allCellsList.push([]);
 		for (let j = 0; j < thisWidth; j++) {
@@ -72,6 +79,7 @@ function createCells(thisWidth, thisHeight) {
 			thisCell.addEventListener('click', event => { cellClick(event); })
 		}
 	}
+	
 	width = thisWidth;
 	height = thisHeight;
 }
@@ -90,45 +98,52 @@ function cellClick(event) {
 		if (event.target.classList.contains('alive')) {
 			event.target.classList.add('dead');
 			event.target.classList.remove('alive');		
+			event.target.active = false;
 		} else{
 			event.target.classList.add('alive');
-			event.target.classList.remove('dead');	
+			event.target.classList.remove('dead');
+			event.target.active = true;	
 		}
 	}
 }
 
 
 function move() {
+	// all cells that are possible to be alive or dead next move
+	allPossibleCells = getPossibleCells(document.querySelectorAll('.cell'));
 	aliveCellsList = [];
 	aliveCellsNumbersList = [];
 	deadCellsList = [];
 	deadCellsNumbersList = [];
+
+	// --------- algorythme --------- //
 	// for all cells
 		// get selected row
 		// get selected column
 		// get number of alives arround
-	for (let i = document.querySelectorAll('.cell').length - 1; i >= 0; i--) {
-		const thisRow = getSelectedRow(i);
-		const thisColumn = getSelectedColumn(i);
-		const numberOfAliveCellsArround = getAlivesArround(thisRow, thisColumn);
 
-		if (numberOfAliveCellsArround == 3) {
-			aliveCellsNumbersList.push(i);
-		} else if (numberOfAliveCellsArround == 2 && document.querySelectorAll('.cell')[i].classList.contains('alive')) {
-			aliveCellsNumbersList.push(i);
+	allPossibleCells.forEach(cell => {
+		index = cell.index;
+		thisRow = getSelectedRow(index);
+		thisColumn = getSelectedColumn(index);
+		numberOfAliveCellsArround = getAlivesArround(thisRow, thisColumn);
+
+		if (numberOfAliveCellsArround == 3 || (numberOfAliveCellsArround == 2 && cell.cell.active)) {
+			aliveCellsNumbersList.push(index);
 		} else {
-			deadCellsNumbersList.push(i);
+			deadCellsNumbersList.push(index);
 		}
-
-	}
+	})
 
 	for (let i = 0; i < aliveCellsNumbersList.length; i++) {
 		document.querySelectorAll('.cell')[aliveCellsNumbersList[i]].classList.remove('dead');
 		document.querySelectorAll('.cell')[aliveCellsNumbersList[i]].classList.add('alive');
+		document.querySelectorAll('.cell')[aliveCellsNumbersList[i]].active = true;
 	}
 	for (let i = 0; i < deadCellsNumbersList.length; i++) {
 		document.querySelectorAll('.cell')[deadCellsNumbersList[i]].classList.remove('alive');
 		document.querySelectorAll('.cell')[deadCellsNumbersList[i]].classList.add('dead');
+		document.querySelectorAll('.cell')[deadCellsNumbersList[i]].active = false;
 	}
 
 	console.log('moved');
@@ -137,7 +152,7 @@ function move() {
 
 function getSelectedRow(cellNumber) {
 	for (let i = 1; i <= height; i++) {
-		if (document.querySelectorAll('.cell')[cellNumber].classList.contains(`r-${i}`)) {
+		if (document.querySelectorAll('.cell')[cellNumber]?.classList.contains(`r-${i}`)) {
 			return i
 		}
 	}
@@ -146,18 +161,41 @@ function getSelectedRow(cellNumber) {
 
 function getSelectedColumn(cellNumber) {
 	for (let i = 1; i <= width; i++) {
-		if (document.querySelectorAll('.cell')[cellNumber].classList.contains(`c-${i}`)) {
+		if (document.querySelectorAll('.cell')[cellNumber]?.classList.contains(`c-${i}`)) {
 			return i
 		}
 	}
 }
 
+// see what cells have chnace to be alive or die out next step
+function getPossibleCells(cells) {
+	const cellsList = [];
+	for(let i = 0; i < cells.length; i++) {
+		cellsList.push(cells[i])
+	}
+
+	const aliveCells = []
+	cellsList.forEach((cell, index) => {
+		cell.active &&  aliveCells.push({cell, index})
+	})
+	const possibleCells = [];
+	aliveCells.forEach((cell) => possibleCells.push(cell));
+	aliveCells.forEach(cell => {
+		const i = cell.index;
+		[i - Number(width) - 1, i - Number(width), i - Number(width) + 1,i - 1, i + 1, i + Number(width) - 1, i + Number(width), i + Number(width) +1 ].forEach(index => {
+			cell = cellsList[index];
+			!possibleCells.includes(cell) && possibleCells.push({cell, index})
+		})
+	})
+	return possibleCells
+}
 
 function getAlivesArround(thisRow, thisColumn) {
 	// create variables
 	let numberOfAlivesArround = 0;
 	const theRow = thisRow - 1;
 	const theCol = thisColumn - 1;
+
 
 	// check 8 conditions implicitly
 	// r+ c
@@ -166,7 +204,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	} 
 	// r+ c+
 	try {
@@ -174,7 +212,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	// r+ c-
 	try {
@@ -182,7 +220,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	// r- c
 	try {
@@ -190,7 +228,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	// r- c+
 	try {
@@ -198,7 +236,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	// r- c-
 	try {
@@ -206,7 +244,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	// r c+
 	try {
@@ -214,7 +252,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	// r c-
 	try {
@@ -222,7 +260,7 @@ function getAlivesArround(thisRow, thisColumn) {
 			numberOfAlivesArround++
 		}
 	}catch (error) {
-		kosSher++
+		numMinorErrors++
 	}
 	return numberOfAlivesArround
 }
