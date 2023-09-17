@@ -1,3 +1,9 @@
+:root {
+	--actve-cell-bg: white;
+	--even-cell-bg: black;
+	--odd-cell-bg: black;
+}
+
 body {
 	background: rgb(245, 245, 245);
 	zoom: 1;
@@ -11,13 +17,14 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	column-gap: 1vw;
+	-moz-column-gap: 1vw;
+	     column-gap: 1vw;
 	transform: translate(-50%,0);
 	background: rgb(30, 30, 30);
 }
 .settings * {
 /*	max-width: 100%;*/
-	font-size: 1.5rem;
+	font-size: 1rem;
 }
 .settings label {
 	display: flex;
@@ -55,11 +62,34 @@ body {
 	font-weight: bold;
 	color: rgb(245, 245, 245);
 }
+@media (max-width: 900px) {
+	.settings * {
+		font-size: 0.8rem;
+		padding: 5px;
+	}
+	.settings {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+	.settings p {
+		margin-top: 2px;
+		margin-bottom: 2px;
+	}
+	.settings label:nth-child(5) {
+		grid-column: 2/4;
+	}
+	.settings-input {
+		width: 30px;
+		aspect-ratio: 16/9;
+	}
+}
+
 div.cell-container {
 	display: grid;
 }
 .cell {
-	border-bottom: rgb(30, 30, 30) 1px solid;
+	/* border-bottom: rgb(30, 30, 30) 1px solid; */
+	border: 1px solid white;
 	/* box-shadow: 0 0 1px black; */
 	font-size: 3rem;
 	text-align: center;
@@ -69,13 +99,13 @@ div.cell-container {
 	aspect-ratio: 1/1;
 }
 .cell:nth-child(odd) {
-	background-color: rgb(230,230,230);
+	background-color: var(--odd-cell-bg);
 }
 .cell:nth-child(even) {
-	background-color: rgb(200,200,200);
+	background-color: var(--even-cell-bg);
 }
 .cell.alive {
-	background: rgb(30, 30, 30);
+	background: var(--actve-cell-bg);
 }
 .dead {
 	background: rgb(245, 245, 245);
